@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import Papa from 'papaparse';
 
+// =========================================================
+// POST: INGEST CSV TO VERCEL POSTGRES
+// =========================================================
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -89,5 +92,38 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Neon Ingestion Crash:", error);
     return NextResponse.json({ error: "Database transmission breakdown." }, { status: 500 });
+  }
+}
+
+// =========================================================
+// GET: FETCH RECORDS FOR ADMIN DASHBOARD HYDRATION
+// =========================================================
+export async function GET() {
+  try {
+    // Pull the latest records from the Postgres database
+    // Ordering by student_name to keep the dashboard organized
+    const result = await sql`
+      SELECT 
+        student_name, 
+        email, 
+        passcode, 
+        application_no, 
+        total_marks, 
+        marks_breakdown 
+      FROM ncet_students
+      ORDER BY student_name ASC;
+    `;
+
+    return NextResponse.json({ 
+      success: true, 
+      records: result.rows 
+    });
+
+  } catch (error) {
+    console.error("Error fetching database records:", error);
+    return NextResponse.json(
+      { success: false, error: "Failed to retrieve records from the database." }, 
+      { status: 500 }
+    );
   }
 }
