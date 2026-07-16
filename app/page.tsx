@@ -97,7 +97,7 @@ export default function AdmissionsPortal() {
       <div className="fixed top-0 left-0 w-full bg-[#122e5c]/95 backdrop-blur-md z-[100] border-b border-white/10 px-4 md:px-8 py-3 flex justify-between items-center shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
         <div className="text-white text-[10px] md:text-xs font-bold tracking-widest uppercase flex flex-col md:flex-row md:items-center gap-0.5 md:gap-2">
           <span className="opacity-70">Admissions Helpline:</span>
-          <a href="tel:97314 07062, 91643 93100" className="text-[#f97316] text-xs md:text-sm">+91 XXXXXXXXXX</a>
+          <a href="tel:97314 07062, 91643 93100" className="text-[#f97316] text-xs md:text-sm">+91 97314 07062, +91 91643 93100</a>
         </div>
         <button 
           onClick={scrollToLogin}
