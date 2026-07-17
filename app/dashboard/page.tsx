@@ -3,37 +3,38 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Download, User, LogOut, Award, BookOpen, Quote, CheckCircle2, Building, FileCheck, ChevronDown, Loader2 } from "lucide-react";
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-// QR Code dependency removed entirely
 
 // =========================================================
-// RANK CALCULATION ENGINE
+// RANK CALCULATION ENGINE (Email VIPs & 1.3k Max)
 // =========================================================
-const getStudentRank = (name: string, uniqueId: string) => {
-  const normalizedName = name.toLowerCase().trim();
+const getStudentRankInfo = (email: string, name: string) => {
+  const safeEmail = (email || "").toLowerCase().trim();
   
-  // VIP Hardcoded Ranks
-  if (normalizedName.includes("srushti chavan")) return 1;
-  if (normalizedName.includes("susmita patil")) return 2;
+  // VIP Hardcoded Ranks by Exact Email
+  if (safeEmail === "shrustichauhan@gmail.com") return { rank: 1, title: "Outstanding Excellence" };
+  if (safeEmail === "susmitapatil6362@gmail.com") return { rank: 2, title: "Top Performer" };
   if (
-    normalizedName.includes("brijesh") || 
-    normalizedName.includes("priyanka m") || 
-    normalizedName.includes("sanjana") || 
-    normalizedName.includes("shubhashree")
+    safeEmail === "priyankam5125@gmail.com" ||
+    safeEmail === "sanjanasanju63609@gmail.com" ||
+    safeEmail === "shubhagowda707@gmail.com" ||
+    safeEmail === "cadetbrijesh0707@gmail.com"
   ) {
-    return 3;
+    return { rank: 3, title: "Distinction Achiever" };
   }
 
-  // Deterministic Pseudo-Random Rank for everyone else (>= 4)
-  // Hashes the unique ID so they get a consistent, unique random rank
+  // Deterministic Pseudo-Random Rank for everyone else (Ranks 4 to 1300)
   let hash = 0;
-  const str = uniqueId ? String(uniqueId) : normalizedName;
+  // Fallback to name if email is somehow missing, to ensure a persistent hash
+  const str = safeEmail || name || "unknown"; 
   for (let i = 0; i < str.length; i++) {
     hash = (hash << 5) - hash + str.charCodeAt(i);
     hash |= 0; // Convert to 32bit integer
   }
   
-  // Returns a unique rank between 4 and 10000
-  return (Math.abs(hash) % 9996) + 4;
+  // Math: % 1297 returns 0-1296. Adding 4 makes the range 4-1300.
+  const randomRank = (Math.abs(hash) % 1297) + 4;
+  
+  return { rank: randomRank, title: "Qualified with Merit" };
 };
 
 // =========================================================
@@ -160,18 +161,18 @@ export default function Dashboard() {
         color: rgb(0.07, 0.18, 0.36), 
       });
 
-      // 4. Draw Custom Rank Text (Replaced QR Logic)
-      const rank = getStudentRank(studentData.student_name, studentData.application_no || studentData.email);
-      const rankText = `Rank: ${rank}`;
-      const rankFontSize = 24;
+      // 4. Draw Custom Rank & Title Text
+      const rankInfo = getStudentRankInfo(studentData.email, studentData.student_name);
+      const rankText = `Rank: ${rankInfo.rank} (${rankInfo.title})`;
+      const rankFontSize = 20; // Slightly smaller to accommodate the title
       const rankTextWidth = helveticaBold.widthOfTextAtSize(rankText, rankFontSize);
 
       firstPage.drawText(rankText, {
         x: (width / 2) - (rankTextWidth / 2), // Perfectly centered at the bottom
-        y: 70,                                // Moved down to QR code position
+        y: 70,                                // Placed in the signature gap
         size: rankFontSize,
         font: helveticaBold,
-        color: rgb(0.97, 0.45, 0.08),         // #f97316 Brand Orange converted to rgb(r/255, g/255, b/255)
+        color: rgb(0.97, 0.45, 0.08),         // #f97316 Brand Orange
       });
 
       // 5. Save and Download
